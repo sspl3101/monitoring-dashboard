@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ssh-keys:/app/ssh-keys
+      - logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=admin
+      - DB_PASSWORD=Summer@2020
+      - DB_NAME=router_monitoring
+      - SSH_DEFAULT_USERNAME=admin
+      - SSH_DEFAULT_PASSWORD=password
+      - SSH_DEFAULT_KEY_PATH=/app/ssh-keys/id_rsa
+      - SSH_CONNECTION_TIMEOUT=10000
+      - PORT=3001
+      - HOST=0.0.0.0
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=Summer@2020
+      - MYSQL_DATABASE=router_monitoring
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=Summer@2020
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+
+volumes:
+  ssh-keys:
+  logs:
+  mysql-data:
